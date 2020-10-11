@@ -10,6 +10,7 @@ class Chat extends React.Component{
     constructor(props){
         super(props);
         this.state = {}
+        this.messagesEndRef = React.createRef()
 
         this.waitForSocketConnection(()=> {
             WSInstance.addCallbacks(
@@ -21,6 +22,16 @@ class Chat extends React.Component{
    
     }
  
+    componentDidMount () {
+        this.scrollToBottom()
+      }
+      componentDidUpdate () {
+        this.scrollToBottom()
+      }
+      scrollToBottom = () => {
+        this.messagesEndRef.current.scrollIntoView({ behavior: 'smooth' })
+      }
+
     addMessage(message){
         this.setState({
              messages: [...this.state.messages, message]
@@ -124,8 +135,7 @@ class Chat extends React.Component{
                         <div className="incoming_msg_img"> <img src="https://ptetutorials.com/images/user-profile.png" alt="sunil "/> </div>
                         <div className="received_msg">
                             <div className="received_withd_msg">
-                            <p>Test which is a new approach to have all
-                                solutions</p>
+                            <p> {this.props.username} </p>
                             <span className="time_date"> 11:01 AM    |    June 9</span></div>
                         </div>
                         </div>
@@ -137,7 +147,9 @@ class Chat extends React.Component{
                         {
                                 messages && 
                                 this.renderMessages(messages)
-                        }
+                        }   
+                        <br />
+                                <div ref={this.messagesEndRef} />
                     </div>
                     <div className="type_msg">
                         <form onSubmit={this.sendMessageHandler.bind(this)}>
@@ -146,7 +158,7 @@ class Chat extends React.Component{
                                 onChange={this.messageChangeHandler.bind(this)} 
                                 value={this.state.message}
                                 placeholder="Type a message" />
-                            <button className="msg_send_btn" type="button"><i className="fa fa-paper-plane-o" aria-hidden="true"></i></button>
+                            <button className="msg_send_btn" type="button" onClick={this.sendMessageHandler.bind(this)}><i className="fa fa-paper-plane-o" aria-hidden="true"></i></button>
                             </div>
                         </form>
                     </div>
@@ -168,7 +180,8 @@ const mapStateToProps = state => {
     console.log('state.token')
     console.log(state)
     return {
-        isAuthenticated: state.token !== null
+        isAuthenticated: state.token !== null,
+        username: state.username
     }
 }
  

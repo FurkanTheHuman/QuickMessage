@@ -9,11 +9,11 @@ export const authStart = () => {
 
 
 
-export const authSuccess = (token) => {
-    console.log('success')
+export const authSuccess = (token, username) => {
     return {
         type: actionTypes.AUTH_SUCCESS,
-        token: token
+        token: token,
+        username: username
     }
 }
 
@@ -27,18 +27,8 @@ export const authFail = (error) => {
 
 export const logout = ()=> {
     localStorage.removeItem('token')
+    localStorage.removeItem('username')
     localStorage.removeItem('expirationDate')
-    console.log('log out')
-    console.log('log out')
-    console.log('log out')
-    console.log('log out')
-    console.log('log out')
-    console.log('log out')
-    console.log('log out')
-    console.log('log out')
-    console.log('log out')
-    console.log('log out')
-    console.log('log out')
     console.log(actionTypes.AUTH_LOGOUT)
     return {
         type: actionTypes.AUTH_LOGOUT
@@ -57,7 +47,7 @@ export const checkTokenTimeout = expTime => {
 
 export const authLogin = (username, password) => {
     return dispatch => {
-        dispatch(authStart);
+        dispatch(authStart());
         axios.post('http://localhost:8000/rest-auth/login/', {
             username: username,
             password: password
@@ -67,8 +57,11 @@ export const authLogin = (username, password) => {
             const token = res.data.key;
             const expirationDate = new Date((new Date()).getTime() + 3600 * 1000 * 24);
             localStorage.setItem('token', token)
+            console.log("localStorage.setItem('username', username)")
+            console.log(username)
+            localStorage.setItem('username', username)
             localStorage.setItem('expirationDate', expirationDate)
-            dispatch(authSuccess(token))
+            dispatch(authSuccess(token, username))
             dispatch(checkTokenTimeout(3600 *24))
         }).catch(err =>{
             dispatch(authFail(err))
@@ -91,10 +84,10 @@ export const authSignup = (username, email, password, password_repeat) => {
             const token = res.data.key;
             const expirationData = new Date((new Date()).getTime() + 3600 * 1000  * 24);
             localStorage.setItem('token', token)
-          
+            localStorage.setItem('username', username)
             localStorage.setItem('expirationDate', expirationData)
-            dispatch(authSuccess(token))
-            dispatch(checkTokenTimeout(3600 * 25))
+            dispatch(authSuccess(token, username))
+            dispatch(checkTokenTimeout(3600 * 24))
         }).catch(err =>{
             dispatch(authFail(err))
         })
@@ -107,6 +100,7 @@ export const authCheckState = ()=> {
 
     return dispatch => {
         const token = localStorage.getItem('token');
+        const username = localStorage.getItem('username');
         if (token === undefined) {
             console.log('exited pi')
 
@@ -121,9 +115,8 @@ export const authCheckState = ()=> {
                 dispatch(logout);
             }
             else{
-                console.log('exited an');
                 console.log(((expirationDate.getTime()- (new Date).getTime()) / 1000) * 10);
-                dispatch(authSuccess(token));
+                dispatch(authSuccess(token, username));
 
                 dispatch(checkTokenTimeout(((expirationDate.getTime()- (new Date).getTime()) / 1000) * 10))
             }

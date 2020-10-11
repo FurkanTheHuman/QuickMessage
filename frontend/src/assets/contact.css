@@ -1,0 +1,7 @@
+.chat_list:hover {
+    opacity: 0.7;
+}
+
+.safe_list{
+    list-style-type: none;
+}
